@@ -331,11 +331,11 @@ var battlestarts = [];
 var HPtotal1 = 0, HPtotal2 = 0, HPnow1 = 0, HPnow2 = 0;
 
 function createShip(data,side,i,damaged) {
-	var ship = new ShipG(i+((side==1)?10:0),side,parseInt(data[1]));
+	var ship = new Ship(data[1], side, parseInt(data[1]), parseInt(data[2]), i, data.slice(3));
 	var graphic = new PIXI.Container();
 	var sdata = SHIPDATA[parseInt(data[0])];
 	if (!sdata) sdata = SHIPDATA[0];
-	var imgname = ((damaged && sdata.imageDam)? sdata.imageDam : sdata.image)
+	var imgname = ((damaged && ship.imageDam)? ship.imageDam : ship.image)
 	var portrait = PIXI.Sprite.fromImage('assets/icons/'+imgname);
 	portrait.position.set((side==1)?11:-3,2);
 	var hpbar = new PIXI.Graphics();
@@ -477,11 +477,8 @@ function processAPI(root) {
 		for (var i=0; i<fshipsC.length; i++) {  //create ship objects (combined)
 			if (!fshipsC[i] || fshipsC[i]==-1) continue;
 			var d = [fshipsC[i], data.api_maxhps_combined[i+1], data.api_nowhps_combined[i+1]]; //[id, maxhp, nowhp, plane1, plane2, plane3, plane4]
-			for (var j=0; j<fequipsC[i].length; j++) {
-				if (fequipsC[i][j] == -1) break;
-				d.push(fequipsC[i][j]);
-				
-			}
+			d.concat(fequipsC[i]);
+			
 			fleet1C.push(createShip(d,0,i));
 			fleet1C[i].xorigin = 152; fleet1C[i].graphic.x = 152;
 			var mask = new PIXI.Sprite.fromImage('assets/mask.png');
@@ -497,6 +494,7 @@ function processAPI(root) {
 	for (var i=0; i<fships.length; i++) {  //create ship objects
 		if (!fships[i] || fships[i]==-1) continue;
 		var d = [fships[i], data.api_maxhps[i+1], data.api_nowhps[i+1]]; //[id, maxhp, nowhp, plane1, plane2, plane3, plane4]
+		d.concat(fequips[i]);
 		for (var j=0; j<fequips[i].length; j++) {
 			if (fequips[i][j] == -1) break;
 			d.push(fequips[i][j]);
